@@ -17,23 +17,26 @@ pipeline {
         }
 
         stage('Deploy') {
-        steps {
-        echo "Deploying WAR to Tomcat..."
-        sh '''
-            WAR_FILE=$(ls target/*.war | head -n 1)
-            if [ -f "$WAR_FILE" ]; then
-                echo "Found WAR: $WAR_FILE"
-                sudo cp "/home/ubuntu/project/area-calculator/target/$WAR_FILE" /home/ubuntu/tomcat/webapps/
-                sudo bash /home/ubuntu/tomcat/bin/shutdown.sh || true
-                sudo bash /home/ubuntu/tomcat/bin/startup.sh
-                echo "Successfully deployed!"
-            else
-                echo "WAR file not found!"
-                exit 1
-            fi
-        '''
-    }
-}
+            steps {
+                sh '''
+                    PROJECT_DIR=/home/ubuntu/project/area-calculator
+                    WAR_FILE=$(ls $PROJECT_DIR/target/*.war | head -n 1)
+
+                    if [ -f "$WAR_FILE" ]; then
+                        echo "Found WAR: $WAR_FILE"
+                        sudo rm -rf /home/ubuntu/tomcat/webapps/*.war
+                        sudo rm -rf /home/ubuntu/tomcat/webapps/area-calculator*
+                        sudo cp "$WAR_FILE" /home/ubuntu/tomcat/webapps/
+                        sudo bash /home/ubuntu/tomcat/bin/shutdown.sh || true
+                        sudo bash /home/ubuntu/tomcat/bin/startup.sh
+                        echo "Successfully deployed!"
+                    else
+                        echo "WAR file not found in $PROJECT_DIR/target/"
+                        exit 1
+                    fi
+                '''
+            }
+        }
 
     }
 
