@@ -19,7 +19,7 @@ pipeline {
         sh '''
             cd /var/lib/jenkins/workspace/Test/target
             sudo cp area-calculator-1.0-SNAPSHOT.war /home/ubuntu/tomcat/webapps
-            /home/ubuntu/tomcat/bin/shutdown.sh || true
+            /home/ubuntu/tomcat/bin/shutdown.sh
             /home/ubuntu/tomcat/bin/startup.sh
             echo "Successfully deployed"
         '''
