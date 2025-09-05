@@ -1,12 +1,11 @@
 pipeline {
     agent any
 
- 
     stages {
         stage('Build') {
             steps {
-                echo "Building project..."
-                sh 'mvn clean install -DskipTests'
+                echo "Building the project..."
+                sh 'mvn clean package -DskipTests'
             }
         }
 
@@ -21,10 +20,12 @@ pipeline {
             steps {
                 echo "Deploying WAR to Tomcat..."
                 sh '''
-                    WAR_FILE=$(ls target/*.war | head -n 1)
+                    WAR_FILE=target/area-calculator-1.0-SNAPSHOT.war
                     if [ -f "$WAR_FILE" ]; then
                         sudo cp $WAR_FILE /home/ubuntu/tomcat/webapps/
-                        echo "Deployment successful!"
+                        sudo bash /home/ubuntu/tomcat/bin/shutdown.sh || true
+                        sudo bash /home/ubuntu/tomcat/bin/startup.sh
+                        echo "Successfully deployed!"
                     else
                         echo "WAR file not found!"
                         exit 1
@@ -33,4 +34,12 @@ pipeline {
             }
         }
     }
+
+    post {
+        always {
+            echo "Pipeline finished. Cleaning workspace..."
+            cleanWs()
+        }
+    }
 }
+
