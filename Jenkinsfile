@@ -15,21 +15,25 @@ pipeline {
         }
 
         stage('Deploy') {
-    steps {
-        sh '''
-            cd /var/lib/jenkins/workspace/Test/target
-            sudo cp area-calculator-1.0-SNAPSHOT.war /home/ubuntu/tomcat/webapps
-            /home/ubuntu/tomcat/bin/shutdown.sh
-            /home/ubuntu/tomcat/bin/startup.sh
-            echo "Successfully deployed"
-        '''
+            steps {
+                sh '''
+                    cd ${WORKSPACE}/target
+                    cp area-calculator-1.0-SNAPSHOT.war /home/ubuntu/tomcat/webapps
+                    /home/ubuntu/tomcat/bin/shutdown.sh
+                    sleep 5
+                    /home/ubuntu/tomcat/bin/startup.sh
+                    echo "Successfully deployed"
+                '''
+            }
+        }
     }
-}
 
-
-        
-
-
-        
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed.'
+        }
     }
 }
