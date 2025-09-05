@@ -18,9 +18,9 @@ pipeline {
     steps {
         sh '''
             cd $WORKSPACE/target
-            cp area-calculator-1.0-SNAPSHOT.war /home/ubuntu/apache-tomcat-9.0.97/webapps
-            /home/ubuntu/apache-tomcat-9.0.97/bin/shutdown.sh || true
-            /home/ubuntu/apache-tomcat-9.0.97/bin/startup.sh
+            cp area-calculator-1.0-SNAPSHOT.war /home/ubuntu/tomcat/webapps
+            /home/ubuntu/tomcat/bin/shutdown.sh || true
+            /home/ubuntu/tomcat/bin/startup.sh
             echo "Successfully deployed"
         '''
     }
