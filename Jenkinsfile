@@ -17,7 +17,7 @@ pipeline {
         stage('Deploy') {
     steps {
         sh '''
-            cd $WORKSPACE/target
+            cd /home/ubuntu/project/area-calculator/target
             sudo cp area-calculator-1.0-SNAPSHOT.war /home/ubuntu/tomcat/webapps
             /home/ubuntu/tomcat/bin/shutdown.sh || true
             /home/ubuntu/tomcat/bin/startup.sh
