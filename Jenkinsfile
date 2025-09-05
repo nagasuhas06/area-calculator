@@ -1,15 +1,7 @@
 pipeline {
     agent any
 
-    tools {
-        maven 'Maven3'   // Make sure Maven tool is configured in Jenkins Global Tool Config
-        jdk 'Java17'     // Adjust based on your installed JDK
-    }
-
-    triggers {
-        githubPush()     // Trigger build on GitHub push
-    }
-
+ 
     stages {
         stage('Build') {
             steps {
