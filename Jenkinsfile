@@ -2,13 +2,11 @@ pipeline {
     agent any
 
     tools {
-        // Make sure Maven and JDK names match Jenkins Global Tool Config
         maven 'Maven3'
         jdk 'Java17'
     }
 
     triggers {
-        // Automatically trigger build when code is pushed to GitHub
         githubPush()
     }
 
@@ -35,22 +33,34 @@ pipeline {
         }
 
         /***************************
-         * 3️⃣ Deploy Stage (Tomcat)
+         * 3️⃣ Deploy Stage (Docker)
          ***************************/
         stage('Deploy') {
             steps {
-                echo "🚀 Deploying WAR to Tomcat..."
+                echo "🐳 Building and deploying Docker container..."
                 sh '''
-                    cd ${WORKSPACE}/target
-                    # Copy WAR to Tomcat webapps
-                    sudo cp area-calculator-1.0-SNAPSHOT.war /home/ubuntu/tomcat/webapps/
+                    cd ${WORKSPACE}
+                    
+                    # Create Dockerfile dynamically (or keep one in repo)
+                    cat > Dockerfile <<EOF
+                    FROM tomcat:9.0-jdk17
+                    RUN rm -rf /usr/local/tomcat/webapps/ROOT
+                    COPY target/area-calculator-1.0-SNAPSHOT.war /usr/local/tomcat/webapps/ROOT.war
+                    EXPOSE 8080
+                    CMD ["catalina.sh", "run"]
+                    EOF
 
-                    # Restart Tomcat cleanly
-                    sudo /home/ubuntu/tomcat/bin/shutdown.sh || true
-                    sleep 5
-                    sudo /home/ubuntu/tomcat/bin/startup.sh
+                    # Build Docker image
+                    docker build -t area-calculator:latest .
 
-                    echo "✅ Successfully deployed!"
+                    # Stop and remove old container if exists
+                    docker stop area-calculator || true
+                    docker rm area-calculator || true
+
+                    # Run new container on port 8085
+                    docker run -d --name area-calculator -p 8085:8080 area-calculator:latest
+
+                    echo "✅ Docker container deployed successfully on port 8085!"
                 '''
             }
         }
@@ -58,14 +68,10 @@ pipeline {
 
     post {
         success {
-            echo '🎯 Pipeline completed successfully!'
+            echo '🎯 Pipeline completed successfully (Docker deploy done)!'
         }
         failure {
-            echo '❌ Pipeline failed. Check Jenkins logs for details.'
-        }
-        always {
-            echo '🧹 Cleaning up workspace...'
-            cleanWs()
+            echo '❌ Pipeline failed. Check logs for details.'
         }
     }
 }
