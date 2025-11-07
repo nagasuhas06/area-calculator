@@ -30,16 +30,14 @@ pipeline {
     steps {
         echo "🐳 Building and deploying Docker container..."
         sh '''
-            cd ${WORKSPACE}
+            cd ${WORKSPACE}/target
 
             # Ensure the WAR file exists before building
             ls -l target/*.war || (echo "❌ WAR file not found in target/" && exit 1)
 
-            # Create Dockerfile dynamically (optional if already in repo)
-            cat > Dockerfile <<EOF
+            
             FROM tomcat:9.0-jdk17
-            RUN rm -rf /usr/local/tomcat/webapps/ROOT
-            COPY target/area-calculator-1.0-SNAPSHOT.war /usr/local/tomcat/webapps/ROOT.war
+            COPY area-calculator-1.0-SNAPSHOT.war /home/ubuntu/tomcat/webapps
             EXPOSE 8080
             CMD ["catalina.sh", "run"]
             EOF
