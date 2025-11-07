@@ -32,20 +32,22 @@ pipeline {
         sh '''
             cd ${WORKSPACE}
 
-            # Ensure the WAR file exists before building
+            # Ensure WAR file exists before building
             ls -l target/*.war || (echo "❌ WAR file not found in target/" && exit 1)
 
-            
+            # Create Dockerfile dynamically
+            cat > Dockerfile <<'EOF'
             FROM tomcat:9.0-jdk17
-            COPY area-calculator-1.0-SNAPSHOT.war /home/ubuntu/tomcat/webapps
+            RUN rm -rf /usr/local/tomcat/webapps/ROOT
+            COPY target/area-calculator-1.0-SNAPSHOT.war /usr/local/tomcat/webapps/ROOT.war
             EXPOSE 8080
             CMD ["catalina.sh", "run"]
             EOF
 
-            # Build the Docker image from current workspace
+            # Build Docker image
             docker build -t area-calculator:latest .
 
-            # Stop and remove any existing container
+            # Stop and remove old container (if exists)
             docker stop area-calculator || true
             docker rm area-calculator || true
 
@@ -56,6 +58,7 @@ pipeline {
         '''
     }
 }
+
     }
 
 
