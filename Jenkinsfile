@@ -30,7 +30,7 @@ pipeline {
     steps {
         echo "🐳 Building and deploying Docker container..."
         sh '''
-            cd ${WORKSPACE}/target
+            cd ${WORKSPACE}
 
             # Ensure the WAR file exists before building
             ls -l target/*.war || (echo "❌ WAR file not found in target/" && exit 1)
